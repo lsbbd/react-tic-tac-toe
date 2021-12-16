@@ -1,33 +1,32 @@
-import React from "react";
+import react from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
-class Clock extends React.Component {
+const Clock = React.lazy(() => import("./clock"));
+
+class ErrorBoundary extends react.Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      date: new Date(),
+      hasError: false,
     };
   }
 
-  componentDidMount() {
-    this.timerId = setInterval(() => {
-      this.tick();
-    }, 1000);
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
   }
 
-  componentWillUnmount() {
-    clearInterval(this.timerId);
-  }
-
-  tick() {
-    this.setState({
-      date: new Date(),
-    });
+  componentDidCatch(error, errorInfo) {
+    console.log(error);
   }
 
   render() {
-    return <h2>{this.state.date.toLocaleTimeString()}</h2>;
+    if (!this.state.hasError) {
+      return this.props.children;
+    }
+    return <h1>{this.props.message ?? "Error happend"}</h1>;
   }
 }
 
@@ -154,7 +153,11 @@ class Game extends React.Component {
 function App(props) {
   return (
     <div>
-      <Clock />
+      <ErrorBoundary message="OMG! the clock can not load!">
+        <Suspense fallback="loading...">
+          <Clock />
+        </Suspense>
+      </ErrorBoundary>
       <Game />
     </div>
   );
