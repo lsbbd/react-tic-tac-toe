@@ -33,6 +33,9 @@ class Clock extends React.Component {
 
 function Square(props) {
   return (
+    // - React events are named using camelCase, rather than lowercase
+    // - With JSX you pass a function as the event handler, rather than string
+    // - You can not return false to prevent default behavior in React. You must call `preventDefault` explicitly
     <button className="square" onClick={props.onClick}>
       {props.value}
     </button>
@@ -89,7 +92,9 @@ class Game extends React.Component {
     });
   }
 
-  handleBoardClick(i) {
+  // This syntax ensures `this` is bound within handleBoardClick
+  // Warning: this is *experimental* syntax (public class syntax), enabled by default in `Create React App`
+  handleBoardClick = (i) => {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -106,7 +111,7 @@ class Game extends React.Component {
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
     });
-  }
+  };
 
   render() {
     const history = this.state.history;
@@ -118,7 +123,7 @@ class Game extends React.Component {
       const desc = move ? `Go to move #${move}` : `Go to game start`;
       return (
         <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>
+          <button onClick={this.jumpTo.bind(this, move)}>
             {move === stepNumber ? <b>{desc}</b> : desc}
           </button>
         </li>
@@ -135,10 +140,7 @@ class Game extends React.Component {
     return (
       <div className="game">
         <div className="game-board">
-          <Board
-            squares={current.squares}
-            onClick={(i) => this.handleBoardClick(i)}
-          />
+          <Board squares={current.squares} onClick={this.handleBoardClick} />
         </div>
         <div className="game-info">
           <div>{status}</div>
