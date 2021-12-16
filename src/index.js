@@ -2,6 +2,35 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
+class Clock extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      date: new Date(),
+    };
+  }
+
+  componentDidMount() {
+    this.timerId = setInterval(() => {
+      this.tick();
+    }, 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerId);
+  }
+
+  tick() {
+    this.setState({
+      date: new Date(),
+    });
+  }
+
+  render() {
+    return <h2>{this.state.date.toLocaleTimeString()}</h2>;
+  }
+}
+
 function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
@@ -30,7 +59,7 @@ function Board(props) {
 
   const renderRow = (row, rowIndex) => (
     <div key={rowIndex} className="board-row">
-      {row.map((i) => renderSquare(i))}
+      {row.map(renderSquare)}
     </div>
   );
 
@@ -60,7 +89,7 @@ class Game extends React.Component {
     });
   }
 
-  handleClick(i) {
+  handleBoardClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -108,7 +137,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board
             squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
+            onClick={(i) => this.handleBoardClick(i)}
           />
         </div>
         <div className="game-info">
@@ -118,6 +147,15 @@ class Game extends React.Component {
       </div>
     );
   }
+}
+
+function App(props) {
+  return (
+    <div>
+      <Clock />
+      <Game />
+    </div>
+  );
 }
 
 function calculateWinner(squares) {
@@ -142,4 +180,4 @@ function calculateWinner(squares) {
 
 // ========================================
 
-ReactDOM.render(<Game />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("root"));
