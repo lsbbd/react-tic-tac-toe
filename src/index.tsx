@@ -1,28 +1,24 @@
-import react from "react";
-import React, { Suspense } from "react";
+import React, { MouseEventHandler, Suspense } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
 const Clock = React.lazy(() => import("./clock"));
 
-class ErrorBoundary extends react.Component {
-  constructor(props) {
-    super(props);
+class ErrorBoundary extends React.Component<
+  { message: string },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
 
-    this.state = {
-      hasError: false,
-    };
-  }
-
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: any) {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     console.log(error);
   }
 
-  render() {
+  render(): React.ReactNode {
     if (!this.state.hasError) {
       return this.props.children;
     }
@@ -30,7 +26,10 @@ class ErrorBoundary extends react.Component {
   }
 }
 
-function Square(props) {
+function Square(props: {
+  onClick: MouseEventHandler<HTMLButtonElement>;
+  value: number;
+}) {
   return (
     // - React events are named using camelCase, rather than lowercase
     // - With JSX you pass a function as the event handler, rather than string
@@ -41,7 +40,7 @@ function Square(props) {
   );
 }
 
-function Board(props) {
+function Board(props: { squares: number[]; onClick: Function }): JSX.Element {
   const getSquares = () => {
     let squares = [];
     let row = [];
@@ -55,11 +54,11 @@ function Board(props) {
     return squares;
   };
 
-  const renderSquare = (i) => (
+  const renderSquare = (i: number) => (
     <Square key={i} value={props.squares[i]} onClick={() => props.onClick(i)} />
   );
 
-  const renderRow = (row, rowIndex) => (
+  const renderRow = (row: number[], rowIndex: number) => (
     <div key={rowIndex} className="board-row">
       {row.map(renderSquare)}
     </div>
@@ -70,21 +69,21 @@ function Board(props) {
   return <div>{squares.map(renderRow)}</div>;
 }
 
-class Game extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      history: [
-        {
-          squares: Array(9).fill(null),
-        },
-      ],
-      stepNumber: 0,
-      xIsNext: true,
-    };
+class Game extends React.Component<
+  {},
+  {
+    history: { squares: number[] }[];
+    stepNumber: number;
+    xIsNext: boolean;
   }
+> {
+  state = {
+    history: [{ squares: Array(9).fill(null) }],
+    stepNumber: 0,
+    xIsNext: true,
+  };
 
-  jumpTo(step) {
+  jumpTo(step: number): void {
     this.setState({
       stepNumber: step,
       xIsNext: step % 2 === 0,
@@ -93,7 +92,7 @@ class Game extends React.Component {
 
   // This syntax ensures `this` is bound within handleBoardClick
   // Warning: this is *experimental* syntax (public class syntax), enabled by default in `Create React App`
-  handleBoardClick = (i) => {
+  handleBoardClick: (i: number) => void = (i) => {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -129,7 +128,7 @@ class Game extends React.Component {
       );
     });
 
-    let status;
+    let status: string;
     if (winner) {
       status = `Winner: ` + winner;
     } else {
@@ -150,7 +149,7 @@ class Game extends React.Component {
   }
 }
 
-function App(props) {
+function App() {
   return (
     <div>
       <ErrorBoundary message="OMG! the clock can not load!">
@@ -163,7 +162,7 @@ function App(props) {
   );
 }
 
-function calculateWinner(squares) {
+function calculateWinner(squares: number[]) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
