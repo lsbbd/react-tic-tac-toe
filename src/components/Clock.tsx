@@ -3,7 +3,9 @@ import React from "react";
 export default class Clock extends React.Component<{}, { date: Date }> {
   timerId: any;
 
-  date = new Date();
+  state = {
+    date: new Date(),
+  };
 
   componentDidMount() {
     this.timerId = setInterval(() => {
