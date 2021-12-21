@@ -1,82 +1,64 @@
-import React from "react";
-import Board from "./Board";
+import React, { useState } from "react";
 import { calculateWinner } from "../utils";
+import Board from "./Board";
 
-export class Game extends React.Component<
-  {}, {
-    history: { squares: number[]; }[];
-    stepNumber: number;
-    xIsNext: boolean;
-  }
-> {
-  state = {
-    history: [{ squares: Array(9).fill(null) }],
-    stepNumber: 0,
-    xIsNext: true,
-  };
+export function Game() {
+  const [history, setHistory] = useState<string[][]>([Array(9).fill(null)]);
+  const [stepNumber, setStepNumber] = useState(0);
+  const [xIsNext, setXIsNext] = useState(true);
 
-  jumpTo(step: number): void {
-    this.setState({
-      stepNumber: step,
-      xIsNext: step % 2 === 0,
-    });
+  const current = history[stepNumber];
+  const winner = calculateWinner(current);
+
+  let status: string;
+  if (winner) {
+    status = `Winner: ` + winner;
+  } else {
+    status = `Next player: ` + (xIsNext ? "X" : "O");
   }
 
-  // This syntax ensures `this` is bound within handleBoardClick
-  // Warning: this is *experimental* syntax (public class syntax), enabled by default in `Create React App`
-  handleBoardClick: (i: number) => void = (i) => {
-    const history = this.state.history.slice(0, this.state.stepNumber + 1);
-    const current = history[history.length - 1];
-    const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    squares[i] = this.state.xIsNext ? "X" : "O";
-    this.setState({
-      history: history.concat([
-        {
-          squares,
-        },
-      ]),
-      stepNumber: history.length,
-      xIsNext: !this.state.xIsNext,
-    });
+  const move = (i: number) => {
+    const history1 = history.slice(0, stepNumber + 1);
+    const squares = history1[history1.length - 1].slice();
+    const winner = calculateWinner(squares);
+    const hasFilled = !!squares[i];
+    if (winner || hasFilled) return;
+ 
+    squares[i] = xIsNext ? "X" : "O";
+    setHistory(history1.concat([squares]));
+    setXIsNext((value) => !value);
+    setStepNumber(history1.length);
   };
 
-  render() {
-    const history = this.state.history;
-    const stepNumber = this.state.stepNumber;
-    const current = history[stepNumber];
-    const winner = calculateWinner(current.squares);
+  const jumpTo = (step: number) => {
+    setStepNumber(step);
+    setXIsNext(step % 2 === 0);
+  };
 
-    const moves = history.map((state, move) => {
-      const desc = move ? `Go to move #${move}` : `Go to game start`;
-      return (
-        <li key={move}>
-          <button onClick={this.jumpTo.bind(this, move)}>
-            {move === stepNumber ? <b>{desc}</b> : desc}
-          </button>
-        </li>
-      );
-    });
-
-    let status: string;
-    if (winner) {
-      status = `Winner: ` + winner;
-    } else {
-      status = `Next player: ` + (this.state.xIsNext ? "X" : "O");
-    }
-
+  const moves = history.map((state, move) => {
+    const desc = move ? `Go to move #${move}` : `Go to game start`;
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board squares={current.squares} onClick={this.handleBoardClick} />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>{moves}</ol>
-        </div>
-      </div>
+      <li key={move}>
+        <button
+          onClick={() => {
+            jumpTo(move);
+          }}
+        >
+          {move === stepNumber ? <b>{desc}</b> : desc}
+        </button>
+      </li>
     );
-  }
+  });
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board squares={current} onClick={move} />
+      </div>
+      <div className="game-info">
+        <div>{status}</div>
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  );
 }

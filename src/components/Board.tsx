@@ -1,7 +1,7 @@
 import Square from "./Square";
 
 export default function Board(props: {
-  squares: number[];
+  squares: string[];
   onClick: Function;
 }): JSX.Element {
   const getSquares = () => {
