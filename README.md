@@ -1,4 +1,4 @@
-# Tic-Tac-Toe
+# Tic-Tac-Toe [![build status](https://github.com/lsbbd/react-tic-tac-toe/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/lsbbd/react-tic-tac-toe/actions/workflows/ci.yml)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
