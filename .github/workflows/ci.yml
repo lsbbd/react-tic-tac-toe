@@ -1,0 +1,23 @@
+name: 'ci'
+on:
+  push:
+    branches:
+      - '**'
+
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set node version to 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+      - run: yarn install --fozen-lockfile
+      - name: Run unit tests
+        run: yarn test --ci --watchAll=false
