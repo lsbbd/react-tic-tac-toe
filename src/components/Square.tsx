@@ -1,7 +1,7 @@
 import { MouseEventHandler } from "react";
 
 export default function Square(props: {
-  onClick: MouseEventHandler<HTMLButtonElement>;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   value: string;
 }) {
   return (
